@@ -19,18 +19,28 @@ impl Arena{
         self.zone.clear();
     }
 
-    pub fn alloc(&mut self, reqsiz:usize)->&mut [u8]{
+    pub fn alloc(&mut self, reqsiz:usize)-> Result<&mut [u8],String>{
         let mut rng= rand::rng();
         let inizio: usize = self.offset;
-        self.offset = self.offset + reqsiz;
-        let fine: usize = self.offset;
-        while fine > self.zone.capacity() {
+        let fine = match self.offset.checked_add(reqsiz){
+            Some(value) => value,
+            None => return Err(String::from("Offset nel valore. \n")),
+        };
+        self.offset = fine;
+        if fine > self.zone.capacity() {
             let randm: usize = rng.random_range(1..=64);
             self.zone.reserve((fine-self.zone.len())+randm);
         }   
         self.zone.resize(fine,0);
 
-        &mut self.zone[inizio..fine]
+        Ok(&mut self.zone[inizio..fine])
     }
 
+    pub fn cpacity(&self) -> usize{
+        self.zone.capacity()
+    }
+
+    pub fn lenf(&self) -> usize{
+        self.zone.len()
+    }   
 }

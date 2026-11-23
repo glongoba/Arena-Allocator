@@ -23,7 +23,11 @@ fn main(){
             .trim()
             .parse()
             .expect(" Inserire un valore valido zio. \n");
-        let value= Arena::alloc(&mut Arena1,numero);
+        let mut value=match Arena::alloc(&mut Arena1,numero){
+            Ok(value) => value,
+            Err(errore) => {println!("Errore: {}",errore);
+            return;}
+        };
         for i in 0..numero {
             let ran: u8 = rng.random();
             value[i] = ran;
